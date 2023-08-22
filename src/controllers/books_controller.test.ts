@@ -133,3 +133,21 @@ describe("POST /api/v1/books endpoint", () => {
 		expect(res.statusCode).toEqual(400);
 	});
 });
+
+describe("DELETE /api/v1/books/{bookId} endpoint", () => {
+	test("status code 404 for a book that is not found", async () => {
+		// Arrange
+
+		jest
+			.spyOn(bookService, "getBook")
+			// this is a weird looking type assertion!
+			// it's necessary because TS knows we can't actually return unknown here
+			// BUT we want to check that in the event a book is missing we return a 404
+			.mockResolvedValue(undefined as unknown as Book);
+		// Act
+		const res = await request(app).delete("/api/v1/books/77");
+
+		// Assert
+		expect(res.statusCode).toEqual(404);
+	});
+});
