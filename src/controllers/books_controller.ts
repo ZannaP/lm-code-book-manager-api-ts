@@ -41,12 +41,14 @@ export const deleteBook = async (req: Request, res: Response) => {
 	const book = await bookService.getBook(bookId);
 	if (book) {
 		try {
-			const book = await bookService.deleteBook(Number(bookId));
-			res.status(202).json(book);
+			const deletedBook = await bookService.deleteBook(Number(bookId));
+			res
+				.status(200)
+				.json(`The book ID: ${bookId}, title: ${book.title} deleted`);
 		} catch (error) {
-			res.status(204).json({ message: (error as Error).message });
+			res.status(400).json({ message: (error as Error).message });
 		}
 	} else {
-		res.status(404).json("There is no book with ${bookId} ID");
+		res.status(404).json(`There is no book with ID:  ${bookId}`);
 	}
 };

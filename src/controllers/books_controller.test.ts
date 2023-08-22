@@ -137,17 +137,39 @@ describe("POST /api/v1/books endpoint", () => {
 describe("DELETE /api/v1/books/{bookId} endpoint", () => {
 	test("status code 404 for a book that is not found", async () => {
 		// Arrange
-
 		jest
-			.spyOn(bookService, "getBook")
+			.spyOn(bookService, "deleteBook")
 			// this is a weird looking type assertion!
 			// it's necessary because TS knows we can't actually return unknown here
 			// BUT we want to check that in the event a book is missing we return a 404
-			.mockResolvedValue(undefined as unknown as Book);
+			.mockResolvedValue(undefined as unknown as number);
 		// Act
 		const res = await request(app).delete("/api/v1/books/77");
 
 		// Assert
 		expect(res.statusCode).toEqual(404);
+	});
+
+	test("status code 400 - if database error when delete", async () => {
+		// Arrange
+		jest.spyOn(bookService, "deleteBook").mockImplementation(() => {
+			throw new Error("Database is in use");
+		});
+		// I do not know how arrange this situation
+
+		// Act
+		const res = await request(app).delete("/api/v1/books/1");
+		expect(res.statusCode).toEqual(400);
+	});
+
+	test("status code successfully 200 for a book that is found and deleted", async () => {
+		// Arrange
+		const mockDeletetBook = jest.spyOn(bookService, "deleteBook");
+		// I do not know how arrange result of getBook inside deleteBook
+
+		// Act
+		const res = await request(app).delete("/api/v1/books/2");
+		// Assert
+		expect(res.statusCode).toEqual(200);
 	});
 });
