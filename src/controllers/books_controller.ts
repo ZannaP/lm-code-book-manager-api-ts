@@ -38,17 +38,23 @@ export const updateBook = async (req: Request, res: Response) => {
 
 export const deleteBook = async (req: Request, res: Response) => {
 	const bookId = Number.parseInt(req.params.bookId);
-	const book = await bookService.getBook(bookId);
-	if (book) {
+	if (!isNaN(bookId)) {
 		try {
 			const deletedBook = await bookService.deleteBook(Number(bookId));
-			res
+			if (deletedBook) {
+				res
 				.status(200)
-				.json(`The book ID: ${bookId}, title: ${book.title} deleted`);
+				.json(`The book ID: ${bookId} deleted`);
+			}
+			else {
+				res.status(404).json(`There is no book with ID: ${bookId}`);
+			}
+
 		} catch (error) {
 			res.status(400).json({ message: (error as Error).message });
 		}
-	} else {
-		res.status(404).json(`There is no book with ID:  ${bookId}`);
+	} 
+	else {
+		res.status(400).json(`Incorrect book ID: ${req.params.bookId}`);
 	}
 };

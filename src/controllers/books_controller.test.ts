@@ -135,41 +135,35 @@ describe("POST /api/v1/books endpoint", () => {
 });
 
 describe("DELETE /api/v1/books/{bookId} endpoint", () => {
-	test("status code 404 for a book that is not found", async () => {
+	test("throw an error when input is not a number", async () => {
 		// Arrange
-		jest
-			.spyOn(bookService, "deleteBook")
-			// this is a weird looking type assertion!
-			// it's necessary because TS knows we can't actually return unknown here
-			// BUT we want to check that in the event a book is missing we return a 404
-			.mockResolvedValue(undefined as unknown as number);
+		
 		// Act
-		const res = await request(app).delete("/api/v1/books/77");
+		const res = await request(app).delete("/api/v1/books/hobbit");
 
 		// Assert
-		expect(res.statusCode).toEqual(404);
+		expect(res.statusCode).toEqual(400);
+		expect(res.body).toBe("Incorrect book ID: hobbit");
 	});
 
-	test("status code 400 - if database error when delete", async () => {
+	test("status code 404 - if is not deleted", async () => {
 		// Arrange
-		jest.spyOn(bookService, "deleteBook").mockImplementation(() => {
-			throw new Error("Database is in use");
-		});
-		// I do not know how arrange this situation
+		jest.spyOn(bookService, "deleteBook").mockResolvedValue(0);
 
 		// Act
-		const res = await request(app).delete("/api/v1/books/1");
-		expect(res.statusCode).toEqual(400);
+		const res = await request(app).delete("/api/v1/books/15");
+		expect(res.statusCode).toEqual(404);
+		expect(res.body).toBe("There is no book with ID: 15");
 	});
 
 	test("status code successfully 200 for a book that is found and deleted", async () => {
 		// Arrange
-		const mockDeletetBook = jest.spyOn(bookService, "deleteBook");
-		// I do not know how arrange result of getBook inside deleteBook
+		const mockDeletetBook = jest.spyOn(bookService, "deleteBook").mockResolvedValue(1);
 
 		// Act
 		const res = await request(app).delete("/api/v1/books/2");
 		// Assert
 		expect(res.statusCode).toEqual(200);
+		expect(res.body).toBe("The book ID: 2 deleted");
 	});
 });
