@@ -8,12 +8,13 @@ import { populateDummyData } from "./database/database_seed";
 const PORT = process.env.PORT;
 
 console.log(`🌍 Running in ${environment} environment`);
+console.log(environment);
 
 app.listen(PORT, () => {
 	console.log(`🚂 Express started on port ${PORT}`);
 
 	// Seed the database with some data
-	if (environment === "dev") {
-		populateDummyData();
-	}
+	// if (environment === "dev") {
+	// 	populateDummyData();
+	// }
 });
